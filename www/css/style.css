@@ -1,0 +1,597 @@
+/* Light theme (default) */
+:root{
+  --bg:#f2f3f5;
+  --panel:#ffffff;
+  --panel-2:#eef0f3;
+  --border:#d8dae0;
+  --text:#1a1a1c;
+  --text-dim:#68696e;
+  --green:#3f8f42;
+  --yellow:#9c7c1f;
+  --gray:#dfe1e5;
+  --accent:#3d6cd8;
+  --accent-2:#2f57ad;
+  --danger:#c0392b;
+  --radius:10px;
+  --block-shade:#ccd1db;
+}
+/* Dark theme, toggled via js/theme.js setting data-theme on <html> */
+:root[data-theme="dark"]{
+  --bg:#121213;
+  --panel:#1c1c1e;
+  --panel-2:#232326;
+  --border:#3a3a3c;
+  --text:#f2f2f2;
+  --text-dim:#9a9a9c;
+  --green:#4c8c4a;
+  --yellow:#b8a13a;
+  --gray:#3a3a3c;
+  --accent:#5b8def;
+  --accent-2:#3d6cd8;
+  --danger:#c04b4b;
+  --block-shade:#0b0b0c;
+}
+/* Colorblind-safe feedback palette: swaps green/yellow for a blue/orange
+   pair, which stays distinguishable under red-green color-vision
+   deficiencies (the most common type) where green/yellow/gray can all read
+   as similar dull tones. Toggled via js/colorblind.js setting a class on
+   <html>, independent of data-theme so it composes with either theme. */
+:root.colorblind{
+  --green:#3d7fd1;
+  --yellow:#d9822b;
+}
+:root[data-theme="dark"].colorblind{
+  --green:#5b9bdc;
+  --yellow:#e0943f;
+}
+*{box-sizing:border-box;}
+body{
+  margin:0;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100dvh;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  padding:calc(env(safe-area-inset-top) + 12px) 12px calc(env(safe-area-inset-bottom) + 24px);
+}
+
+/* Screens: only one visible at a time */
+.screen{
+  display:none;
+  width:100%;
+  flex-direction:column;
+  align-items:center;
+}
+.screen.active{display:flex;}
+/* Game screen is sized to exactly the space left in the viewport after
+   body's own padding (which already excludes notch/home-indicator safe
+   areas), so it fills the effective screen without the page growing taller
+   and scrolling. overflow-y is a safety net, not the primary fit strategy —
+   see .sudoku-mode below for the actual compacting that makes Expert fit. */
+#screenGame.active{
+  height:calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 36px);
+  padding-bottom:84px;
+  overflow-y:auto;
+}
+
+.topbar{
+  width:100%;
+  max-width:560px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:2px;
+}
+.topbar-actions{display:flex;gap:6px;}
+.icon-btn{
+  background:var(--panel);
+  border:1px solid var(--border);
+  color:var(--text);
+  border-radius:8px;
+  padding:6px 10px;
+  font-size:1rem;
+  cursor:pointer;
+}
+h1{
+  font-size:1.6rem;
+  letter-spacing:0.04em;
+  margin:4px 0 2px;
+}
+.subtitle{
+  color:var(--text-dim);
+  font-size:0.85rem;
+  margin-bottom:16px;
+  text-align:center;
+  max-width:520px;
+}
+.play-btn{
+  margin:16px 0 10px;
+  padding:16px 48px;
+  font-size:1.1rem;
+}
+.stats-btn{
+  margin-bottom:20px;
+}
+button.primary{
+  background:var(--accent);
+  color:#fff;
+  border:none;
+  padding:8px 18px;
+  border-radius:999px;
+  font-size:0.85rem;
+  cursor:pointer;
+}
+button.primary:hover{background:var(--accent-2);}
+button.primary:disabled{background:var(--panel-2);color:var(--text-dim);cursor:not-allowed;}
+button.ghost{
+  background:transparent;
+  border:1px solid var(--border);
+  color:var(--text);
+  padding:7px 16px;
+  border-radius:999px;
+  font-size:0.85rem;
+  cursor:pointer;
+}
+button.ghost:hover{border-color:var(--accent);}
+
+/* Game top bar: remaining guesses + play time */
+.game-topbar{
+  width:100%;
+  max-width:560px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:16px;
+  font-size:0.85rem;
+  color:var(--text-dim);
+}
+#budgetWrap{display:flex;align-items:center;gap:8px;}
+.budget-track{
+  width:100px;height:6px;border-radius:4px;background:var(--panel-2);overflow:hidden;
+}
+.budget-fill{
+  height:100%;background:var(--accent);transition:width .2s,background .2s;
+}
+#timerText{
+  font-variant-numeric:tabular-nums;
+  color:var(--text);
+  font-weight:600;
+}
+
+#boardWrap{
+  width:100%;
+  max-width:560px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+.board-grid{
+  display:grid;
+  gap:6px;
+  justify-content:center;
+}
+.row-head{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:6px;
+  cursor:pointer;
+  font-size:0.7rem;
+  color:var(--text-dim);
+  padding:2px 4px;
+  line-height:1.2;
+  user-select:none;
+  transition:border-color .15s,background .15s;
+}
+.row-head .num{font-size:0.95rem;font-weight:700;color:var(--text);}
+.row-head.selected{border-color:var(--accent);background:var(--panel-2);}
+.row-head.solved{border-color:var(--green);}
+.row-head.solved .num{color:var(--green);}
+.row-head.revealed{border-color:var(--danger);}
+.row-head.locked{border-color:var(--yellow);}
+.row-head.locked .num{color:var(--yellow);}
+.row-head.plain{cursor:default;}
+
+.grid-cell{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:700;
+  font-size:1.05rem;
+  border-radius:6px;
+  background:var(--panel-2);
+  border:1px solid var(--border);
+  color:var(--text-dim);
+  cursor:pointer;
+  aspect-ratio:1/1;
+  transition:border-color .15s;
+}
+.grid-cell.selected-row{border-color:var(--accent);}
+.grid-cell.green{background:var(--green);border-color:var(--green);color:#fff;}
+.grid-cell.yellow{background:var(--yellow);border-color:var(--yellow);color:#fff;}
+.grid-cell.gray{background:var(--gray);border-color:var(--gray);color:var(--text-dim);}
+
+/* Colorblind mode: green/yellow aren't distinguished by hue alone. Yellow
+   ("present, wrong spot") gets a diagonal stripe texture; green ("correct")
+   gets a small checkmark badge — both readable at a glance even in
+   grayscale, on top of the blue/orange palette swap above. */
+.colorblind .grid-cell,
+.colorblind .cell{position:relative;}
+.colorblind .grid-cell.yellow,
+.colorblind .cell.yellow,
+.colorblind .grid-cell.digit-flash{
+  background-image:repeating-linear-gradient(135deg, rgba(255,255,255,0.32) 0 5px, transparent 5px 10px);
+}
+.colorblind .grid-cell.green::after,
+.colorblind .cell.green::after{
+  content:'\2713';
+  position:absolute;
+  top:1px;
+  right:3px;
+  font-size:0.55em;
+  line-height:1;
+  opacity:0.9;
+}
+.grid-cell.revealed{background:var(--panel-2);border-color:var(--danger);color:var(--danger);}
+.grid-cell.empty{color:var(--border);}
+/* Live preview: digits appear on the board itself as they're tapped, before
+   the guess is submitted (feedback colors only apply after submit). */
+.grid-cell.typing{color:var(--text);}
+
+/* Expert-mode Sudoku: given clues vs. player-filled cells, a soft conflict
+   flag (row/col/box duplicate) as an assist, thick 3x3 box-boundary borders,
+   and alternating block shading so the box grouping reads at a glance. */
+.grid-cell.given{background:var(--panel);color:var(--text);font-weight:800;cursor:default;}
+.grid-cell.filled{background:var(--panel-2);color:var(--accent);}
+.grid-cell.conflict{border-color:var(--danger);color:var(--danger);}
+.grid-cell.box-edge-r{border-right-width:3px;border-right-color:var(--text-dim);}
+.grid-cell.box-edge-b{border-bottom-width:3px;border-bottom-color:var(--text-dim);}
+.grid-cell.empty.block-shade,
+.grid-cell.given.block-shade,
+.grid-cell.filled.block-shade{
+  background:var(--block-shade);
+}
+
+.active-panel{
+  margin-top:18px;
+  width:100%;
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:12px 14px;
+}
+.active-panel-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  font-size:0.75rem;
+  text-transform:uppercase;
+  letter-spacing:0.08em;
+  color:var(--text-dim);
+  margin-bottom:8px;
+}
+.history{
+  display:flex;
+  flex-direction:column;
+  gap:5px;
+  margin-bottom:8px;
+}
+.guess-row{
+  display:flex;
+  gap:5px;
+}
+.cell{
+  width:36px;
+  height:36px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:700;
+  font-size:1rem;
+  border-radius:6px;
+  background:var(--panel-2);
+  border:1px solid var(--border);
+  color:var(--text);
+}
+.cell.green{background:var(--green);border-color:var(--green);color:#fff;}
+.cell.yellow{background:var(--yellow);border-color:var(--yellow);color:#fff;}
+.cell.gray{background:var(--gray);border-color:var(--gray);color:var(--text-dim);}
+.cell.blank{color:var(--text-dim);border-style:dashed;}
+
+.row-note{
+  font-size:0.8rem;
+  color:var(--text-dim);
+}
+.row-note.win{color:var(--green);}
+.row-error{
+  color:var(--danger);
+  font-size:0.75rem;
+  min-height:16px;
+  text-align:center;
+}
+
+/* Current-guess line: the typed-digit boxes plus Erase/Guess, all together.
+   Left-aligned (not centered) and using the exact same cell size/gap as
+   .guess-row above, so the current guess's digit columns line up exactly
+   with every previously-submitted guess row in the history. */
+.guess-line{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-bottom:8px;
+}
+.guess-display{
+  display:flex;
+  gap:5px;
+}
+.guess-line .ghost.erase{color:var(--danger);border-color:var(--danger);}
+
+/* Shared digit-button look, used inside the fixed bottom pad */
+.digit-btn{
+  border-radius:8px;
+  background:var(--panel-2);
+  border:1px solid var(--border);
+  color:var(--text);
+  font-weight:700;
+  cursor:pointer;
+}
+.digit-btn:active{border-color:var(--accent);background:var(--panel);}
+.digit-btn:disabled{opacity:0.4;cursor:not-allowed;}
+
+/* On-screen digit pad, docked to the bottom of the screen — replaces the
+   native keyboard entirely. All digits + backspace sit on one row. */
+.digit-pad-bar{
+  display:none;
+  position:fixed;
+  left:0;
+  right:0;
+  bottom:0;
+  z-index:10;
+  gap:4px;
+  padding:8px 8px calc(env(safe-area-inset-bottom) + 8px);
+  background:var(--panel);
+  border-top:1px solid var(--border);
+}
+.digit-pad-bar.visible{display:flex;}
+.digit-pad-bar .digit-btn{
+  flex:1 1 0;
+  min-width:0;
+  height:48px;
+  font-size:1rem;
+  padding:0;
+}
+.digit-pad-bar .digit-btn.backspace{
+  flex:1.3 1 0;
+  font-size:1.2rem;
+  color:var(--danger);
+  border-color:var(--danger);
+}
+
+/* Compact layout for Expert's 9x9 board — tighter gaps/fonts/padding than
+   the classic 4-6 wide grids so the whole screen fits without scrolling. */
+#screenGame.sudoku-mode .game-topbar{margin-bottom:8px;}
+#screenGame.sudoku-mode .board-grid{gap:2px;}
+#screenGame.sudoku-mode .row-head{font-size:0.55rem;padding:0 2px;}
+#screenGame.sudoku-mode .row-head .num{font-size:0.7rem;}
+#screenGame.sudoku-mode .grid-cell{font-size:0.75rem;border-radius:4px;}
+#screenGame.sudoku-mode .grid-cell.box-edge-r{border-right-width:2px;}
+#screenGame.sudoku-mode .grid-cell.box-edge-b{border-bottom-width:2px;}
+#screenGame.sudoku-mode .active-panel{margin-top:8px;padding:8px 10px;}
+#screenGame.sudoku-mode .active-panel-head{margin-bottom:4px;}
+#screenGame.sudoku-mode .history{gap:3px;margin-bottom:4px;}
+/* Same size for history rows and the current-guess line — any mismatch here
+   throws off the column alignment between them. */
+#screenGame.sudoku-mode .history .cell,
+#screenGame.sudoku-mode .guess-display .cell{width:24px;height:24px;font-size:0.8rem;}
+#screenGame.sudoku-mode .row-note{font-size:0.7rem;}
+
+/* Fill-in phase drops the guess line/history entirely (digits go straight
+   onto the grid via tap-cell-then-tap-digit) — the panel below the grid
+   shrinks down to just the Draft/Erase/Hint control row. */
+#screenGame.filling .active-panel{margin-top:8px;padding:8px 10px;}
+#screenGame.filling #boardWrap{max-width:640px;}
+#screenGame.filling .board-grid{gap:4px;}
+#screenGame.filling .row-head{font-size:0.75rem;padding:0 4px;}
+#screenGame.filling .row-head .num{font-size:0.95rem;}
+#screenGame.filling .grid-cell{font-size:1.2rem;border-radius:6px;}
+
+.fill-controls{
+  display:flex;
+  gap:8px;
+  justify-content:center;
+  flex-wrap:wrap;
+}
+.fill-control-btn.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+.fill-control-btn.erase{color:var(--danger);border-color:var(--danger);}
+.fill-control-btn:disabled{opacity:0.4;cursor:not-allowed;}
+
+/* Draft (pencil-mark) digits: a tiny 3x3 grid of candidate numbers inside
+   one cell, shown only until a final digit is set for that cell. */
+.draft-marks{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  grid-template-rows:repeat(3,1fr);
+  width:100%;
+  height:100%;
+}
+.draft-marks span{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:0.5rem;
+  font-weight:600;
+  color:var(--text-dim);
+}
+
+/* A player-filled cell that matches the true answer locks in place (can't
+   be erased or overwritten) — a subtle bolder accent marks it as "settled"
+   rather than just "filled". */
+.grid-cell.locked-correct{font-weight:800;cursor:default;}
+
+/* One-time 2s highlight when all 9 occurrences of a digit are confirmed
+   correct — render-driven (see triggerDigitCompleteFlash), not a CSS
+   transition, so it survives the grid being rebuilt on every render. */
+.grid-cell.digit-flash{background:var(--yellow);border-color:var(--yellow);color:#fff;}
+
+details{
+  max-width:560px;
+  width:100%;
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:10px 14px;
+  margin-top:18px;
+  font-size:0.85rem;
+  color:var(--text-dim);
+  line-height:1.5;
+}
+summary{cursor:pointer;color:var(--text);font-weight:600;}
+#shareBox{
+  white-space:pre-wrap;
+  background:var(--panel-2);
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:10px;
+  font-size:0.8rem;
+  margin-top:10px;
+  width:100%;
+  display:none;
+}
+
+/* Modals: difficulty picker, end-of-game stats, lifetime stats, settings */
+.modal-backdrop{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.6);
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  z-index:50;
+}
+.modal-backdrop.open{display:flex;}
+.modal-card{
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:20px;
+  max-width:420px;
+  width:100%;
+  max-height:85vh;
+  overflow-y:auto;
+}
+.modal-card h2{margin:0 0 14px;font-size:1.1rem;}
+.oog-message{
+  color:var(--text-dim);
+  font-size:0.9rem;
+  line-height:1.5;
+  margin:0 0 18px;
+}
+
+.diff-picker{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  margin-bottom:16px;
+}
+.diff-pick-btn{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  background:var(--panel-2);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:12px 16px;
+  cursor:pointer;
+  color:var(--text);
+  text-align:left;
+}
+.diff-pick-btn:hover{border-color:var(--accent);}
+.diff-pick-label{font-weight:700;font-size:1rem;}
+.diff-pick-sub{font-size:0.75rem;color:var(--text-dim);margin-top:2px;}
+
+.stat-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-bottom:14px;
+}
+.stat-item{
+  background:var(--panel-2);
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:10px;
+  text-align:center;
+}
+.stat-item .val{font-size:1.3rem;font-weight:700;}
+.stat-item .lbl{font-size:0.7rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.05em;margin-top:2px;}
+.row-breakdown{
+  font-size:0.8rem;
+  color:var(--text-dim);
+  margin-bottom:14px;
+}
+.row-breakdown-item{display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid var(--border);}
+
+.diff-stats-block{
+  background:var(--panel-2);
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:8px 10px;
+  margin-bottom:8px;
+}
+.diff-stats-label{font-weight:700;font-size:0.85rem;margin-bottom:4px;}
+.diff-stats-row{
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+  font-size:0.75rem;
+  color:var(--text-dim);
+}
+.diff-stats-row strong{color:var(--text);}
+.modal-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;}
+.modal-actions-primary{margin-top:12px;justify-content:space-between;}
+.modal-actions-primary button{flex:1;}
+.settings-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:10px 0;
+  border-bottom:1px solid var(--border);
+}
+
+/* Mock ad overlay (see js/ads.js) */
+.dg-ad-overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.85);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:100;
+}
+.dg-ad-card{
+  background:var(--panel);
+  border:1px solid var(--accent);
+  border-radius:var(--radius);
+  padding:24px;
+  text-align:center;
+  max-width:320px;
+}
+.dg-ad-badge{
+  display:inline-block;
+  background:var(--accent);
+  color:#fff;
+  font-size:0.65rem;
+  letter-spacing:0.08em;
+  padding:2px 8px;
+  border-radius:999px;
+  margin-bottom:10px;
+}
+.dg-ad-card p{margin:0 0 16px;}

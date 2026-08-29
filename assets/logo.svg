@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <!-- Sudoku Sleuth mark: a 3x3 grid with a green/yellow/blue diagonal,
+       echoing the game's own guess-feedback colors. -->
+  <g>
+    <rect x="207" y="207" width="190" height="190" rx="26" fill="#5b8def"/>
+    <rect x="417" y="207" width="190" height="190" rx="26" fill="#232326" stroke="#4a4a4e" stroke-width="3"/>
+    <rect x="627" y="207" width="190" height="190" rx="26" fill="#232326" stroke="#4a4a4e" stroke-width="3"/>
+
+    <rect x="207" y="417" width="190" height="190" rx="26" fill="#232326" stroke="#4a4a4e" stroke-width="3"/>
+    <rect x="417" y="417" width="190" height="190" rx="26" fill="#4c8c4a"/>
+    <rect x="627" y="417" width="190" height="190" rx="26" fill="#232326" stroke="#4a4a4e" stroke-width="3"/>
+
+    <rect x="207" y="627" width="190" height="190" rx="26" fill="#232326" stroke="#4a4a4e" stroke-width="3"/>
+    <rect x="417" y="627" width="190" height="190" rx="26" fill="#232326" stroke="#4a4a4e" stroke-width="3"/>
+    <rect x="627" y="627" width="190" height="190" rx="26" fill="#b8a13a"/>
+  </g>
+</svg>

@@ -1,0 +1,24 @@
+# Dependencies (regenerable via `npm install`)
+node_modules/
+
+# Build output
+www/build/
+dist/
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Local env / secrets
+.env
+.env.local
+*.keystore
+*.jks
+google-services.json

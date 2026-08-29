@@ -1,0 +1,12 @@
+{
+  "appId": "com.deductiongrid.app",
+  "appName": "Sudoku Sleuth",
+  "webDir": "www",
+  "backgroundColor": "#121213",
+  "android": {
+    "backgroundColor": "#121213"
+  },
+  "ios": {
+    "backgroundColor": "#121213"
+  }
+}

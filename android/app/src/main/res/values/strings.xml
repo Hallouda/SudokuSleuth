@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Sudoku Sleuth</string>
+    <string name="title_activity_main">Sudoku Sleuth</string>
+    <string name="package_name">com.deductiongrid.app</string>
+    <string name="custom_url_scheme">com.deductiongrid.app</string>
+    <!-- Google's public test AdMob App ID — safe to ship in dev/debug builds,
+         but MUST be replaced with this app's real AdMob App ID before any
+         real release. See README ("Real ads (AdMob)"). -->
+    <string name="admob_app_id">ca-app-pub-3940256099942544~3347511713</string>
+</resources>

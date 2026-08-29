@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Sudoku Sleuth</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- Home screen -->
+<section id="screenHome" class="screen">
+  <header class="topbar">
+    <h1>SUDOKU SLEUTH</h1>
+    <div class="topbar-actions">
+      <button class="icon-btn" id="settingsNavBtn" title="Settings">⚙️</button>
+    </div>
+  </header>
+
+  <div class="subtitle">A hidden grid where every row and column holds unique digits from a wider pool. Click a row to select it, guess a full row at a time, and read the feedback — green means right digit, right spot; yellow means it's in the row, wrong spot; gray means it's not in that row at all. Use column overlaps across rows to deduce faster. You share one guess budget for the whole grid.</div>
+
+  <button class="primary play-btn" id="playBtn">▶ Play</button>
+  <button class="ghost stats-btn" id="statsNavBtn">📊 Stats</button>
+
+  <details>
+    <summary>How to play</summary>
+    Each puzzle hides an N&times;N grid filled with digits drawn from a pool larger than N, arranged so no row or column repeats a digit &mdash; like a Sudoku region with room to spare. You don't see the grid. Tap a row number to select it, then tap out that full row's digits on the keypad below the grid (e.g. "3164" for a 4-wide row) to get per-digit feedback: <strong style="color:#4c8c4a;">green</strong> if that digit is in that exact spot, <strong style="color:#b8a13a;">yellow</strong> if it's somewhere else in that row, and gray if it doesn't appear in that row at all. The main grid always shows each row's latest guess feedback at a glance. All your guesses across every row draw from one shared budget, so once you know a digit's column position from one row, you can rule it out of that column in every other row. Solve every row before the budget runs out to win.
+  </details>
+</section>
+
+<!-- Game screen -->
+<section id="screenGame" class="screen">
+  <div class="game-topbar">
+    <button class="icon-btn" id="quitGameBtn" title="Quit to home">←</button>
+    <span id="budgetWrap"><span id="budgetLabel">Guesses:</span> <strong id="budgetText">-</strong>
+      <span class="budget-track"><span class="budget-fill" id="budgetFill"></span></span>
+    </span>
+    <span id="timerText">0s</span>
+  </div>
+
+  <div id="boardWrap">
+    <div class="board-grid" id="boardGrid"></div>
+    <div class="active-panel" id="activePanel"></div>
+  </div>
+
+  <div class="digit-pad-bar" id="digitPadBar"></div>
+</section>
+
+<!-- Difficulty picker -->
+<div class="modal-backdrop" id="difficultyModal">
+  <div class="modal-card">
+    <h2>Choose Difficulty</h2>
+    <div class="diff-picker" id="diffPicker">
+      <button class="diff-pick-btn" data-diff="easy">
+        <span class="diff-pick-label">Easy</span>
+        <span class="diff-pick-sub">4×4 · pool 1–6</span>
+      </button>
+      <button class="diff-pick-btn" data-diff="medium">
+        <span class="diff-pick-label">Medium</span>
+        <span class="diff-pick-sub">5×5 · pool 1–8</span>
+      </button>
+      <button class="diff-pick-btn" data-diff="hard">
+        <span class="diff-pick-label">Hard</span>
+        <span class="diff-pick-sub">6×6 · pool 1–9</span>
+      </button>
+      <button class="diff-pick-btn" data-diff="expert">
+        <span class="diff-pick-label">Expert</span>
+        <span class="diff-pick-sub">9×9 · real Sudoku · 3 guesses/row, then finish it by hand</span>
+      </button>
+    </div>
+    <div class="modal-actions">
+      <button class="ghost" id="difficultyCloseBtn">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Out-of-guesses decision popup: shown before a loss is counted -->
+<div class="modal-backdrop" id="outOfGuessesModal">
+  <div class="modal-card">
+    <h2 id="oogTitle">You Are Out Of Guesses</h2>
+    <p class="oog-message" id="oogMessage">Watch an ad for more guesses, or end the game now.</p>
+    <div class="modal-actions modal-actions-primary">
+      <button class="ghost" id="oogEndGameBtn">End Game</button>
+      <button class="primary" id="oogAddGuessesBtn">▶ Add Guesses (Ad)</button>
+    </div>
+  </div>
+</div>
+
+<!-- End-of-game stats screen -->
+<div class="modal-backdrop" id="endGameModal">
+  <div class="modal-card">
+    <h2 id="endGameTitle">Result</h2>
+    <div class="stat-grid" id="endGameStats"></div>
+    <div class="row-breakdown" id="rowBreakdown"></div>
+    <div class="modal-actions">
+      <button class="ghost" id="shareBtn">Copy Result</button>
+    </div>
+    <div id="shareBox"></div>
+    <div class="modal-actions modal-actions-primary">
+      <button class="ghost" id="endGameHomeBtn">Back to Home</button>
+      <button class="primary" id="endGameReplayBtn">Replay</button>
+    </div>
+  </div>
+</div>
+
+<!-- Lifetime stats screen -->
+<div class="modal-backdrop" id="statsModal">
+  <div class="modal-card">
+    <h2>Lifetime Stats</h2>
+    <div style="text-transform:uppercase;font-size:0.7rem;letter-spacing:0.05em;color:var(--text-dim);margin-bottom:6px;">All Difficulties</div>
+    <div class="stat-grid" id="lifetimeStats"></div>
+    <div style="text-transform:uppercase;font-size:0.7rem;letter-spacing:0.05em;color:var(--text-dim);margin-bottom:6px;">By Difficulty</div>
+    <div id="lifetimeStatsByDiff"></div>
+    <div class="modal-actions">
+      <button class="ghost" id="statsCloseBtn">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Settings screen -->
+<div class="modal-backdrop" id="settingsModal">
+  <div class="modal-card">
+    <h2>Settings</h2>
+    <div class="settings-row">
+      <span>Theme</span>
+      <button class="ghost" id="themeToggleBtn">🌙 Dark</button>
+    </div>
+    <div class="settings-row">
+      <span>Sound</span>
+      <button class="ghost" id="soundToggleBtn">On</button>
+    </div>
+    <div class="settings-row">
+      <span>Colorblind Mode</span>
+      <button class="ghost" id="colorblindToggleBtn">Off</button>
+    </div>
+    <div class="settings-row">
+      <span>Ads</span>
+      <button class="ghost" id="removeAdsBtn">Remove Ads</button>
+    </div>
+    <div class="settings-row" id="privacyOptionsRow" style="display:none;">
+      <span>Ad Privacy Choices</span>
+      <button class="ghost" id="privacyOptionsBtn">Review</button>
+    </div>
+    <div class="modal-actions">
+      <button class="ghost" id="settingsCloseBtn">Close</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/theme.js"></script>
+<script src="js/colorblind.js"></script>
+<script src="js/stats.js"></script>
+<script src="js/haptics.js"></script>
+<script src="js/sound.js"></script>
+<script src="js/ads.js"></script>
+<script src="js/iap.js"></script>
+<script src="js/game.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
