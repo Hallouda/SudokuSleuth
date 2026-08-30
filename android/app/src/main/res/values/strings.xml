@@ -2,8 +2,8 @@
 <resources>
     <string name="app_name">Sudoku Sleuth</string>
     <string name="title_activity_main">Sudoku Sleuth</string>
-    <string name="package_name">com.deductiongrid.app</string>
-    <string name="custom_url_scheme">com.deductiongrid.app</string>
+    <string name="package_name">com.sudokusleuth.app</string>
+    <string name="custom_url_scheme">com.sudokusleuth.app</string>
     <!-- Google's public test AdMob App ID — safe to ship in dev/debug builds,
          but MUST be replaced with this app's real AdMob App ID before any
          real release. See README ("Real ads (AdMob)"). -->

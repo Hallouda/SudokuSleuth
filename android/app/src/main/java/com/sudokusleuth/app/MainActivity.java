@@ -1,4 +1,4 @@
-package com.deductiongrid.app;
+package com.sudokusleuth.app;
 
 import com.getcapacitor.BridgeActivity;
 
