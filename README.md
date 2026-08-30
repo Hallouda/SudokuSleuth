@@ -42,6 +42,8 @@ android/                  native Android shell (added via `npx cap add android`)
 capacitor.config.json
 package.json
 design-doc.md             original product spec this was built from
+docs/                     release paperwork — Play Console runbook, store
+                            listing copy, Data safety answer sheet
 .claude/launch.json       dev-server config for Claude Code's browser-preview tool
 ```
 
