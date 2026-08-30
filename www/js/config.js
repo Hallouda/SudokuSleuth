@@ -32,18 +32,24 @@ window.DGConfig = (function () {
       interstitialCooldownMs: 60000,
       rewardedGuessGrant: 2,
       rewardedMaxPerGame: 1,
-      // TODO(release): these are Google's public sample/test ad unit IDs
-      // (https://developers.google.com/admob/android/test-ads) — safe
-      // defaults for development, but they only ever serve test creatives.
-      // Before a real release, replace all four with this app's own AdMob
-      // ad unit IDs (create them in the AdMob console: one Interstitial, one
-      // Rewarded, per platform) and set admob.testing to false. See README
-      // ("Real ads (AdMob)").
+      // Android IDs are this app's real AdMob units (project "Sudoku Sleuth",
+      // App ID ca-app-pub-3794065271065209~2698853479, set in
+      // android/app/src/main/res/values/strings.xml).
+      //
+      // `testing: true` still forces TEST creatives through these real units
+      // (the plugin adds the current device as a test device per request), so
+      // development and internal-testing builds never risk an invalid-traffic
+      // strike. Flip it to false only once the app is live or in a Play
+      // testing track. See README ("Real ads (AdMob)").
+      //
+      // iOS IDs are still Google's public test units — there's no ios/
+      // project yet; create real iOS units (and a matching iOS App ID) when
+      // one is added, don't reuse the Android IDs cross-platform.
       admob: {
         testing: true,
-        interstitialAndroid: 'ca-app-pub-3940256099942544/1033173712',
+        interstitialAndroid: 'ca-app-pub-3794065271065209/7727818878',
         interstitialIos: 'ca-app-pub-3940256099942544/4411468910',
-        rewardedAndroid: 'ca-app-pub-3940256099942544/5224354917',
+        rewardedAndroid: 'ca-app-pub-3794065271065209/2475492192',
         rewardedIos: 'ca-app-pub-3940256099942544/1712485313',
       },
     },

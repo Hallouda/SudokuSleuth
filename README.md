@@ -201,21 +201,29 @@ consent flow (GDPR/EEA) run once at boot (`DGAds.initializeSdk()`) and a
 revisitable). In browser dev (`npx serve www`, no native bridge) it falls
 back to the same "MOCK AD" overlay as before — that workflow is unchanged.
 
-Everything ships wired to **Google's public test App ID / ad unit IDs**
-(safe defaults — they only ever serve test creatives, so the app works
-out of the box without an AdMob account). Before a real release:
+**Android** ships with this app's real AdMob IDs (App ID in
+`android/app/src/main/res/values/strings.xml`, ad unit IDs in
+`www/js/config.js`'s `DEFAULTS.ads.admob`), but `admob.testing` is `true`,
+which forces **test creatives** through those real units — so dev and
+internal-testing builds are safe from invalid-traffic strikes. **iOS**
+entries are still Google's public test units (no `ios/` project yet).
 
-1. Create an AdMob account and register the app (Android) to get a real
-   **App ID**, then replace `admob_app_id` in
-   `android/app/src/main/res/values/strings.xml`.
-2. Create two ad units (Interstitial, Rewarded) in the AdMob console and
-   replace the four IDs in `www/js/config.js`'s `DEFAULTS.ads.admob` — set
-   `admob.testing` to `false` once they're real.
-3. In AdMob console → **Privacy & messaging**, set up a GDPR/EEA consent
+Remaining before a public release:
+
+1. Set `admob.testing` to `false` in `www/js/config.js` — only once the app
+   is live or in a Play testing track. Before flipping it, register your
+   device as an AdMob test device and never tap your own live ads.
+2. In AdMob console → **Privacy & messaging**, set up a GDPR/EEA consent
    message (and an ATT message if `ios/` gets added later) — without this,
    `requestConsentInfo()` has nothing to show and the consent flow is a
    no-op (fine for non-EEA traffic, required before EEA/UK launch).
-4. `npm run sync` then rebuild.
+3. Publish `app-ads.txt` (line shown in AdMob → Sites & apps) on the
+   developer domain once you own one, and set that domain as the developer
+   website in the Play listing.
+4. When an `ios/` project is added: create a separate iOS AdMob App ID +
+   iOS ad units, replace the `*Ios` IDs in `config.js` — don't reuse the
+   Android IDs cross-platform.
+5. `npm run sync` then rebuild.
 
 Trigger points, frequency capping, and the one-rewarded-per-game rule
 (section 3.2 of the design doc) are unchanged by any of this — they're
