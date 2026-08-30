@@ -241,8 +241,12 @@ before they can be real:
   a Remote Config response. Wire up Firebase Remote Config (or similar) in
   `loadConfig()` to tune difficulty/ad-frequency without a release.
 - **iOS**: needs `npx cap add ios` on a Mac with Xcode.
-- **Privacy policy / App Tracking Transparency**: required by both stores
-  before submission once ad SDKs + analytics are real — needs legal review.
+- **Privacy policy**: drafted and hosted at
+  https://hallouda.github.io/privacy_policy_sudokusleuth/ (source repo:
+  github.com/Hallouda/privacy_policy_sudokusleuth). Use that URL in the Play
+  listing, the Play Data Safety form, and AdMob Privacy & messaging. Must be
+  updated (and Data Safety kept in sync) if analytics/crash reporting is
+  added later. App Tracking Transparency copy still needed if `ios/` ships.
 
 ## Not yet built (later phases per the design doc)
 
