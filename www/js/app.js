@@ -13,6 +13,13 @@
     await window.DGSound.load();
     await window.DGColorblind.load();
     adsRemoved = await window.DGIap.load();
+    // Play Billing reconciles ownership asynchronously after boot (receipts
+    // load, a restore completes, a refund lands) — keep our copy + the UI
+    // in sync when it does.
+    window.DGIap.onChange((removed) => {
+      adsRemoved = removed;
+      updateRemoveAdsBtn();
+    });
     window.DGAds.init(cfg.ads);
     window.DGAds.initializeSdk();
 
@@ -49,6 +56,7 @@
     document.getElementById('soundToggleBtn').addEventListener('click', onToggleSound);
     document.getElementById('colorblindToggleBtn').addEventListener('click', onToggleColorblind);
     document.getElementById('removeAdsBtn').addEventListener('click', onRemoveAds);
+    document.getElementById('restorePurchasesBtn').addEventListener('click', onRestorePurchases);
     document.getElementById('privacyOptionsBtn').addEventListener('click', () => window.DGAds.showPrivacyOptions());
     document.getElementById('themeToggleBtn').addEventListener('click', onToggleTheme);
 
@@ -880,21 +888,35 @@
 
   function updateRemoveAdsBtn() {
     const btn = document.getElementById('removeAdsBtn');
+    const restoreRow = document.getElementById('restorePurchasesRow');
     if (adsRemoved) {
       btn.textContent = 'Ads Removed ✓';
       btn.disabled = true;
+      if (restoreRow) restoreRow.style.display = 'none';
     } else {
-      btn.textContent = 'Remove Ads';
+      const price = window.DGIap.getPrice && window.DGIap.getPrice();
+      btn.textContent = price ? 'Remove Ads · ' + price : 'Remove Ads';
       btn.disabled = false;
+      if (restoreRow) restoreRow.style.display = 'flex';
     }
   }
 
   async function onRemoveAds() {
+    const btn = document.getElementById('removeAdsBtn');
+    btn.disabled = true;
     const ok = await window.DGIap.purchaseRemoveAds();
     if (ok) {
       adsRemoved = true;
-      updateRemoveAdsBtn();
     }
+    updateRemoveAdsBtn();
+  }
+
+  async function onRestorePurchases() {
+    const btn = document.getElementById('restorePurchasesBtn');
+    if (btn) { btn.disabled = true; btn.textContent = 'Restoring…'; }
+    await window.DGIap.restore();
+    if (btn) { btn.disabled = false; btn.textContent = 'Restore'; }
+    updateRemoveAdsBtn();
   }
 
   function updateThemeBtn() {

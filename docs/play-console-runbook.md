@@ -5,9 +5,10 @@ Capacitor Android app, package `com.sudokusleuth.app`, real AdMob wired
 (`admob.testing: true`), release signing via `android/keystore.properties`,
 privacy policy live at <https://hallouda.github.io/privacy_policy_sudokusleuth/>.
 
-Two things are **not done yet** and block a *production* release (but not
-internal testing): the Remove Ads IAP is still a mock (`www/js/iap.js`), and
-there is no `app-ads.txt` (needs an owned domain).
+The Remove Ads IAP is now real Google Play Billing (product `remove_ads`) —
+but you must **create that in-app product in Play Console and upload a build**
+before it returns anything (step D2 below). The only thing with no path yet is
+`app-ads.txt` (needs an owned domain), and it doesn't block submission.
 
 ---
 
@@ -19,8 +20,8 @@ there is no `app-ads.txt` (needs an owned domain).
 3. Complete **identity verification** — legal name, address, phone, a photo of
    a government ID. Google can take up to a few days to approve; you can start
    the app setup while it's pending but can't publish until verified.
-4. Set up a **payments profile** only if you'll sell the Remove Ads IAP
-   (you will) — Play Console → Setup → Payments profile.
+4. Set up a **payments profile** (Play Console → Setup → Payments profile) —
+   required to sell the Remove Ads IAP. Details in step D.
 
 > **New personal accounts:** Google requires a **closed test with ≥12 testers
 > opted in for ≥14 continuous days** before you may apply for production
@@ -59,7 +60,24 @@ Work top to bottom through **Dashboard → Set up your app**:
 10. **Health** — No.
 11. **Privacy policy** — `https://hallouda.github.io/privacy_policy_sudokusleuth/`
 
-## D. Main store listing
+## D. Monetization setup
+
+1. **Payments profile** — Play Console → Setup → Payments profile (needed to
+   sell the IAP). Requires legal name, address, and tax info.
+2. **In-app product** — Monetize → Products → **In-app products → Create
+   product**:
+   - Product ID: **`remove_ads`** (must match the code exactly — cannot be
+     changed later)
+   - Name / description: e.g. "Remove Ads" / "Removes between-game ads forever."
+   - Set a price, then **Activate**.
+   - Play only returns product details after a build is on a track (step G),
+     so it's fine to create this now and test the purchase after the first
+     internal-testing upload.
+3. **License testing** — Setup → License testing → add your tester Google
+   account(s). Purchases by those accounts complete without a real charge and
+   can be refunded/re-tested freely.
+
+## E. Main store listing
 
 Fill from [`store-listing.md`](store-listing.md):
 
@@ -73,7 +91,7 @@ Fill from [`store-listing.md`](store-listing.md):
 - App category: **Games → Puzzle**. Tags: add "Puzzle", "Board", "Brain games".
 - Contact details: `mahdi.mohamed542@gmail.com`, website optional.
 
-## E. Build the release artifact
+## F. Build the release artifact
 
 From the repo (needs JDK 17 + Android SDK 35 — see main README):
 
@@ -88,7 +106,7 @@ cd android && ./gradlew clean bundleRelease
 # -> android/app/build/outputs/bundle/release/app-release.aab
 ```
 
-## F. Internal testing (do this first)
+## G. Internal testing (do this first)
 
 1. Play Console → **Testing → Internal testing → Create new release**.
 2. **Play App Signing**: accept (recommended). Your `upload-keystore.jks`
@@ -100,24 +118,25 @@ cd android && ./gradlew clean bundleRelease
 4. **Testers** tab → create an email list (add your own accounts + a couple of
    others) → copy the **opt-in URL**, open it on the test device's Google
    account, install from Play.
-5. Smoke-test on a real device: both mode families, ads showing **test
-   creatives** (because `admob.testing: true`), the UMP consent prompt if you
-   set your device region to the EEA, Settings → privacy options row, stats
-   persistence across app restarts.
+5. Smoke-test on a real device: both mode families; ads showing **test
+   creatives** (because `admob.testing: true`); the UMP consent prompt if you
+   set your device region to the EEA; Settings → privacy options row; stats
+   persistence across app restarts; **buy Remove Ads** (as a license tester —
+   free), confirm interstitials stop, then reinstall and hit Settings →
+   **Restore** to confirm ownership comes back.
 
-## G. Before promoting past internal testing
+## H. Before promoting past internal testing
 
-- [ ] **Replace the IAP mock** (`www/js/iap.js`) with real Play Billing, and
-      create the **in-app product** in Play Console → Monetize → Products →
-      In-app products (product id e.g. `remove_ads`, matching the code).
 - [ ] Set `admob.testing: false` in `www/js/config.js`, rebuild, bump
       `versionCode`.
+- [ ] Confirm the `remove_ads` in-app product is **Active** and a real
+      (non-license-tester) purchase would charge the set price.
 - [ ] Publish the **EEA consent message** in AdMob → Privacy & messaging.
 - [ ] `app-ads.txt` on your developer domain (once you own one).
 - [ ] Review the **pre-launch report** (Play runs your app on real devices —
       catches crashes, accessibility, and policy issues).
 
-## H. Closed testing → production
+## I. Closed testing → production
 
 1. **Testing → Closed testing** → create a track, upload the same (or newer)
    AAB, add your ≥12 testers, keep it running **14+ days**.
@@ -127,7 +146,7 @@ cd android && ./gradlew clean bundleRelease
    staged % if you want). First production review can take a few days to
    a couple of weeks.
 
-## I. Every subsequent upload
+## J. Every subsequent upload
 
 Bump `versionCode` (and usually `versionName`) in `android/app/build.gradle`,
 `npm run sync`, `./gradlew bundleRelease`, upload to the relevant track.

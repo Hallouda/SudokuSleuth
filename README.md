@@ -231,14 +231,43 @@ Trigger points, frequency capping, and the one-rewarded-per-game rule
 (section 3.2 of the design doc) are unchanged by any of this — they're
 plain product logic in `ads.js`, independent of the SDK underneath.
 
+## Remove Ads IAP
+
+`js/iap.js` uses real **Google Play Billing** via `cordova-plugin-purchase`
+(`window.CdvPurchase`) on native builds — one non-consumable product,
+**`remove_ads`**. In browser dev (no plugin) a `confirm()` mock stands in.
+
+There is no backend: a purchase is trusted once Google Play reports it and is
+acknowledged with `transaction.finish()` (Google auto-refunds a purchase left
+unacknowledged for 3 days). A device-local flag (`dg_ads_removed_v1` in
+`DGStorage`) mirrors ownership for a synchronous read and offline launches,
+and is reconciled against Play on every launch (once receipts load) and on
+the Settings → **Restore** button.
+
+Before it works on a real device:
+
+1. In Play Console → **Monetize → Products → In-app products**, create a
+   product with ID exactly `remove_ads`, type **non-consumable**, set a price,
+   and **activate** it.
+2. Upload a build to at least the **internal testing** track — Play won't
+   return product details for an app with no released bundle.
+3. Add your test Google account under **Play Console → Settings → License
+   testing** so purchases complete without a real charge.
+4. Billing needs `minSdkVersion` ≥ 23 (already set in `android/variables.gradle`).
+
+Until then `purchaseRemoveAds()` degrades gracefully — the button stays
+enabled but a tap is a no-op (the product/offer never loads).
+
 ## What's still mocked / not wired up
 
 Per the design doc's own sequencing, these need external accounts/credentials
 before they can be real:
 
-- **Remove Ads IAP** (`js/iap.js`): a `confirm()` dialog stands in for the
-  platform purchase sheet. Must route through StoreKit / Google Play Billing
-  before submission.
+- **Remove Ads IAP on iOS**: the Android side is real Google Play Billing
+  (`js/iap.js` via `cordova-plugin-purchase`, product `remove_ads`). The same
+  plugin covers StoreKit, so iOS works once an `ios/` project exists and the
+  product is created in App Store Connect. In browser dev a `confirm()` mock
+  still stands in. See "Remove Ads IAP" below.
 - **Remote config** (`js/config.js`): returns hardcoded defaults shaped like
   a Remote Config response. Wire up Firebase Remote Config (or similar) in
   `loadConfig()` to tune difficulty/ad-frequency without a release.

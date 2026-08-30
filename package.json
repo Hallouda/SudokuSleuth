@@ -15,7 +15,8 @@
     "@capacitor/android": "^6.1.2",
     "@capacitor/core": "^6.1.2",
     "@capacitor/haptics": "^6.0.1",
-    "@capacitor/preferences": "^6.0.2"
+    "@capacitor/preferences": "^6.0.2",
+    "cordova-plugin-purchase": "^13.18.0"
   },
   "devDependencies": {
     "@capacitor/assets": "^3.0.5",
