@@ -22,3 +22,6 @@ npm-debug.log*
 *.keystore
 *.jks
 google-services.json
+
+# Release signing (real values live here; commit keystore.properties.example only)
+android/keystore.properties

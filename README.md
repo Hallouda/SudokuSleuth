@@ -106,6 +106,35 @@ and either large or machine-specific. To get building again:
 After editing anything in `www/`, run `npm run sync` before rebuilding so the
 native project picks up the changes.
 
+## Release build & signing
+
+`android/app/build.gradle`'s `release` build type has R8 (`minifyEnabled` +
+`shrinkResources`) on and is wired to sign from `android/keystore.properties`,
+which is **gitignored** — without it the release build falls back to debug
+signing (Play Console rejects that).
+
+1. Generate an upload keystore once (keep it and its passwords backed up
+   outside the repo):
+   ```bash
+   keytool -genkeypair -v -keystore android/upload-keystore.jks \
+     -keyalg RSA -keysize 2048 -validity 10000 -alias upload
+   ```
+2. `cp android/keystore.properties.example android/keystore.properties` and
+   fill in the four values.
+3. Build the App Bundle for the Play Store:
+   ```bash
+   cd android && ./gradlew bundleRelease
+   ```
+   Output: `android/app/build/outputs/bundle/release/app-release.aab`.
+   (`assembleRelease` produces a signed APK for sideload testing instead.)
+4. Enrol the app in **Play App Signing** when you first upload — Google then
+   holds the real signing key and `upload-keystore.jks` only signs uploads.
+
+Toolchain: JDK 17, AGP 8.7.2 / Gradle 8.9, `compileSdk`/`targetSdk` 35
+(Play's minimum for new submissions). If R8 strips something the app needs
+at runtime, add a keep rule to `android/app/proguard-rules.pro` (the
+Capacitor and AdMob SDKs already ship their own).
+
 ## App icon & splash screen
 
 Generated from `assets/logo.svg` via `@capacitor/assets` (dev dependency) —
