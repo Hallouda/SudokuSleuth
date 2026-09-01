@@ -93,7 +93,7 @@ Fill from [`store-listing.md`](store-listing.md):
 
 ## F. Build the release artifact
 
-From the repo (needs JDK 17 + Android SDK 35 — see main README):
+From the repo (needs JDK 17 + Android SDK 36 — see main README):
 
 ```bash
 # one-time: create the upload keystore and android/keystore.properties

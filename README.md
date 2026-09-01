@@ -91,7 +91,7 @@ and either large or machine-specific. To get building again:
      `latest/` one level deeper — the tools error out at launch if the path
      isn't exactly right).
    - `sdkmanager --licenses` (accept all)
-   - `sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"`
+   - `sdkmanager "platform-tools" "platforms;android-36" "build-tools;36.0.0"`
 4. Create `android/local.properties` with a single line:
    `sdk.dir=<path-to-sdk-root>` (forward slashes work fine on Windows too).
 5. Set `JAVA_HOME` / `ANDROID_HOME` for your shell session, then:
@@ -132,7 +132,7 @@ signing (Play Console rejects that).
 4. Enrol the app in **Play App Signing** when you first upload — Google then
    holds the real signing key and `upload-keystore.jks` only signs uploads.
 
-Toolchain: JDK 17, AGP 8.7.2 / Gradle 8.9, `compileSdk`/`targetSdk` 35
+Toolchain: JDK 17, AGP 8.11.1 / Gradle 8.13, `compileSdk`/`targetSdk` 36
 (Play's minimum for new submissions). If R8 strips something the app needs
 at runtime, add a keep rule to `android/app/proguard-rules.pro` (the
 Capacitor and AdMob SDKs already ship their own).
