@@ -36,17 +36,18 @@ window.DGConfig = (function () {
       // App ID ca-app-pub-3794065271065209~2698853479, set in
       // android/app/src/main/res/values/strings.xml).
       //
-      // `testing: true` still forces TEST creatives through these real units
-      // (the plugin adds the current device as a test device per request), so
-      // development and internal-testing builds never risk an invalid-traffic
-      // strike. Flip it to false only once the app is live or in a Play
-      // testing track. See README ("Real ads (AdMob)").
+      // `testing` controls the plugin's per-request isTesting flag. false =
+      // real production ads. Set true again for local dev / emulator work so
+      // you never risk an invalid-traffic strike; to test on a real device
+      // with testing:false, register that device in AdMob → Settings → Test
+      // devices instead. Never tap a live ad on your own device. See README
+      // ("Real ads (AdMob)").
       //
       // iOS IDs are still Google's public test units — there's no ios/
       // project yet; create real iOS units (and a matching iOS App ID) when
       // one is added, don't reuse the Android IDs cross-platform.
       admob: {
-        testing: true,
+        testing: false,
         interstitialAndroid: 'ca-app-pub-3794065271065209/7727818878',
         interstitialIos: 'ca-app-pub-3940256099942544/4411468910',
         rewardedAndroid: 'ca-app-pub-3794065271065209/2475492192',
