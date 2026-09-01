@@ -59,19 +59,21 @@ How few guesses can you solve it in?
 - Phone: *(optional)*
 
 ## Graphic assets checklist
-- [ ] **App icon** — 512×512 PNG, 32-bit with alpha. Derive from
-      `assets/logo.svg` (the 3×3 feedback-colour grid mark).
-- [ ] **Feature graphic** — 1024×500, PNG or JPG, **no alpha**. Simple: the
-      logo mark + "SUDOKU SLEUTH" on the app's `#121213` background.
-- [ ] **Phone screenshots** — 2–8, portrait 9:16 (e.g. 1080×1920). Suggested:
+- [x] **App icon** — `assets/play/icon-512.png` (512×512, on-brand grid mark
+      on `#121213`). Regenerate: `node scripts/gen-store-assets.js`.
+- [x] **Feature graphic** — `assets/play/feature-1024x500.png` (1024×500,
+      24-bit, no alpha). Same generator.
+- [ ] **Phone screenshots** — 2–8, portrait. Play rejects a side-length ratio
+      over 2:1, so shoot a real device (e.g. 1080×2400 → pad or shoot 1080×1920).
+      Capture from the internal-testing build on your phone:
       1. Home screen
-      2. Classic (Medium) mid-solve, some green/yellow feedback showing
+      2. Classic (Medium) mid-solve — green/yellow/gray feedback visible
       3. Expert guessing phase
       4. Expert fill-in phase with pencil marks
       5. End-of-game stats screen (streak visible)
-- [ ] *(optional)* 7-inch and 10-inch tablet screenshots
+- [ ] *(optional)* 7-inch / 10-inch tablet screenshots
 - [ ] *(optional)* promo video (YouTube URL)
 
-Capture screenshots from a release build on a device or emulator, then crop to
-exact dimensions. The icon and feature graphic are fine as on-brand
-placeholders for launch; swap for real art before any marketing push.
+`icon-512.png` and `feature-1024x500.png` are on-brand placeholders — good
+enough to launch, swap for real art before any marketing push. Screenshots
+must come from the running app; Google prefers real-device captures.
